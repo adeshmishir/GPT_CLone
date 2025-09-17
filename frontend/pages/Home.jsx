@@ -1,6 +1,7 @@
 import React, { useRef, useState, useEffect } from "react";
 import Sidebar from "../components/Sidebar";
-import Message from "../components/Message";
+
+import { useNavigate } from "react-router-dom";
 
 const quickPrompts = [
   "Give me a concise summary of this meeting transcript",
@@ -25,6 +26,7 @@ const Home = () => {
   const [collapsed, setCollapsed] = useState(false); // desktop rail width
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState("");
+  const navigate = useNavigate();
   const [windowWidth, setWindowWidth] = useState(
     typeof window !== "undefined" ? window.innerWidth : 1200
   );
@@ -119,7 +121,7 @@ const Home = () => {
   return (
 
     <div className="h-screen w-screen bg-gray-50">
-        <Message/>
+        <button onClick={()=>navigate("/login")}>LOgin </button>
       <Sidebar
         isOpen={isOpen}
         setIsOpen={setIsOpen}
