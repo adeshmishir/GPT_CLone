@@ -1,5 +1,7 @@
+import axios from "axios";
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
+
 const Signup = ({ onSignup }) => {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
@@ -7,10 +9,12 @@ const Signup = ({ onSignup }) => {
   const [confirm, setConfirm] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState("");
-const navigate = useNavigate();
+  const [loading, setLoading] = useState(false);
+  const navigate = useNavigate();
+
   const validateEmail = (email) => /^\S+@\S+\.\S+$/.test(email);
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
 
@@ -26,14 +30,32 @@ const navigate = useNavigate();
       setError("Password must be at least 6 characters.");
       return;
     }
-    if (password !== confirm) {
-      setError("Passwords do not match.");
-      return;
-    }
+   
 
-    // fake success (replace with API call)
-    if (onSignup) onSignup({ name, email });
-    alert(`Account created for ${name}`);
+    setLoading(true);
+    try {
+      const response = await axios.post("/api/user/register", {
+        userName:name,
+        email,
+        password,
+      });
+console.log(response.data);
+
+      if (response.data && response.data.success) {
+        if (onSignup) onSignup(response.data); // pass server response up if parent provided handler
+        navigate("/home");
+      } else {
+        setError(response.data?.message || "Registration failed.");
+      }
+    } catch (err) {
+      setError(
+        err.response?.data?.message ||
+          err.message ||
+          "Something went wrong. Try again."
+      );
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -44,9 +66,7 @@ const navigate = useNavigate();
       >
         <h2 className="text-2xl font-semibold mb-4 text-center">Sign Up</h2>
 
-        {error && (
-          <p className="text-red-500 text-sm mb-3 text-center">{error}</p>
-        )}
+        {error && <p className="text-red-500 text-sm mb-3 text-center">{error}</p>}
 
         <div className="mb-4">
           <label className="block mb-1 text-sm font-medium">Name</label>
@@ -56,7 +76,6 @@ const navigate = useNavigate();
             value={name}
             onChange={(e) => setName(e.target.value)}
             placeholder="Your name"
-            required
           />
         </div>
 
@@ -68,7 +87,6 @@ const navigate = useNavigate();
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             placeholder="you@example.com"
-            required
           />
         </div>
 
@@ -81,39 +99,35 @@ const navigate = useNavigate();
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               placeholder="Enter password"
-              required
             />
             <button
               type="button"
               className="absolute right-2 top-2 text-sm text-gray-600"
-              onClick={() => setShowPassword((prev) => !prev)}
+              onClick={() => setShowPassword((p) => !p)}
             >
               {showPassword ? "Hide" : "Show"}
             </button>
           </div>
         </div>
 
-        <div className="mb-4">
-          <label className="block mb-1 text-sm font-medium">
-            Confirm Password
-          </label>
-          <input
-            type={showPassword ? "text" : "password"}
-            className="w-full p-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-            value={confirm}
-            onChange={(e) => setConfirm(e.target.value)}
-            placeholder="Confirm password"
-            required
-          />
-        </div>
+        
 
         <button
           type="submit"
-          className="w-full bg-green-600 text-white py-2 rounded-lg hover:bg-green-700 transition"
+          disabled={loading}
+          className={`w-full text-white py-2 rounded-lg transition ${
+            loading ? "bg-gray-400" : "bg-green-600 hover:bg-green-700"
+          }`}
         >
-          Sign Up
+          {loading ? "Signing up..." : "Sign Up"}
         </button>
-        <p className="text-blue-600 cursor-pointer" onClick={()=>navigate("/login")}> Login</p>
+
+        <p
+          className="text-blue-600 cursor-pointer mt-3 text-center"
+          onClick={() => navigate("/login")}
+        >
+          Login
+        </p>
       </form>
     </div>
   );

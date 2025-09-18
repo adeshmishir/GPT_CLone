@@ -1,15 +1,18 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import axios from "axios";
 
 const Login = ({ onLogin }) => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState("");
- const navigate = useNavigate();
+  const [loading, setLoading] = useState(false);
+  const navigate = useNavigate();
+
   const validateEmail = (email) => /^\S+@\S+\.\S+$/.test(email);
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
 
@@ -22,9 +25,21 @@ const Login = ({ onLogin }) => {
       return;
     }
 
-    // fake success (replace with API call)
-    if (onLogin) onLogin({ email });
-    alert(`Logged in as ${email}`);
+    setLoading(true);
+    try {
+      const response = await axios.post("/api/user/login", { email, password });
+
+      if (response.data && response.data.success) {
+        if (onLogin) onLogin(response.data);
+        navigate("/");
+      } else {
+        setError(response.data?.message || "Login failed.");
+      }
+    } catch (err) {
+      setError(err.response?.data?.message || err.message || "Something went wrong.");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -35,9 +50,7 @@ const Login = ({ onLogin }) => {
       >
         <h2 className="text-2xl font-semibold mb-4 text-center">Login</h2>
 
-        {error && (
-          <p className="text-red-500 text-sm mb-3 text-center">{error}</p>
-        )}
+        {error && <p className="text-red-500 text-sm mb-3 text-center">{error}</p>}
 
         <div className="mb-4">
           <label className="block mb-1 text-sm font-medium">Email</label>
@@ -74,11 +87,20 @@ const Login = ({ onLogin }) => {
 
         <button
           type="submit"
-          className="w-full bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700 transition"
+          disabled={loading}
+          className={`w-full text-white py-2 rounded-lg transition ${
+            loading ? "bg-gray-400" : "bg-blue-600 hover:bg-blue-700"
+          }`}
         >
-          Login
+          {loading ? "Logging in..." : "Login"}
         </button>
-        <p onClick={()=>navigate("/signup")} className="text-red-500 cursor-pointer">Signup</p>
+
+        <p
+          onClick={() => navigate("/signup")}
+          className="text-red-500 cursor-pointer mt-3 text-center"
+        >
+          Signup
+        </p>
       </form>
     </div>
   );

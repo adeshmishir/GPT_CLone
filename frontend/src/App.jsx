@@ -12,16 +12,11 @@ const App = () => {
 
 
   useEffect(()=>{
-      axios.get("/api/arr")
-     .then(res=>setData(res.data))
-     .catch(err=>console.error(err)
-     )
+    
   })
   return ( 
     <>
-     {data.map(d=>
-      <li key={d.id}> {d.title} {d.name}</li>
-     )}
+     
     <BrowserRouter>
       <Routes>
         <Route path='/' element={<Home/>}/>
