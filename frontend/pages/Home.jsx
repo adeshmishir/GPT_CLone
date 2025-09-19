@@ -121,7 +121,30 @@ const Home = () => {
   return (
 
     <div className="h-screen w-screen bg-gray-50">
-        <button onClick={()=>navigate("/login")}>LOgin </button>
+        <div className="h-screen w-screen bg-gray-50 flex items-center justify-center gap-4">
+  {/* Login button */}
+  <button
+    onClick={() => navigate("/login")}
+    className="px-6 py-3 bg-blue-600 text-white font-semibold rounded-xl shadow-md hover:bg-blue-700 hover:shadow-lg active:scale-95 transition-transform duration-200"
+  >
+    Login
+  </button>
+    <button
+    onClick={() => navigate("/colorPage")}
+    className="px-6 py-3 bg-blue-600 text-white font-semibold rounded-xl shadow-md hover:bg-blue-700 hover:shadow-lg active:scale-95 transition-transform duration-200"
+  >
+    colorPage
+  </button>
+
+  {/* Chat button */}
+  <button
+    onClick={() => navigate("/chat")}
+    className="px-6 py-3 bg-green-600 text-white font-semibold rounded-xl shadow-md hover:bg-green-700 hover:shadow-lg active:scale-95 transition-transform duration-200"
+  >
+    Chat
+  </button>
+</div>
+
       <Sidebar
         isOpen={isOpen}
         setIsOpen={setIsOpen}
